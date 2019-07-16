@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 #from requests.exceptions import RequestException
 #from contextlib import closing
 from bs4 import BeautifulSoup
@@ -11,7 +12,7 @@ def get_url(url):
 
 	r = requests.get(url)
 
-	return r.text
+	return r.content
 
 def ad(html):
 	"""
@@ -20,28 +21,67 @@ def ad(html):
 
 	soup = BeautifulSoup(html, 'html.parser')
 
-	"""
-	soup.find_all("div", {'class': lambda x: x 
-                       and 'search-item' in x.split()
-             })
-	"""
-
 	return soup.select('.search-item')
 
 def price(soup):
 	"""
+	takes a single ad (html glob)
 	returns the price of an listing
 	"""
+	# could make this more efficent but eh
+	data_list = [element.text for element in soup.find_all("div", "price")]
 
-	soup.select('.price')
-
-	return soup.text
+	tag_price = re.compile('[0-9.,]')
+	
+	return ''.join(tag_price.findall(data_list[0]))
 
 def title(soup):
 	"""
 	returns the title of a listing
 	"""
 
-	soup.select(".price")
+	data_list = [element.text for element in soup.find_all("div", "title")]
 
-	return soup.text
+	return data_list[0].strip()
+
+def description(soup):
+	"""
+	takes a singe ad
+	returns the description of the ad
+	"""
+
+	data_list = [element.text for element in soup.find_all("div", "description")]
+
+	return data_list[0].strip()
+
+def location(soup):
+	"""
+	takes a singe ad
+	returns the location of the ad
+	"""
+
+	data_list = [element.text for element in soup.find_all("div", "location")]
+
+	return data_list[0].strip()
+
+
+def kilometers(soup):
+	"""
+	takes a singe ad
+	returns the kilometers of the ad
+	"""
+
+	data_list = [element.text for element in soup.find_all("div", "details")]
+
+	return data_list[0].strip()
+
+def link(soup):
+	"""
+	takes a single ad
+	returns the link of the ad
+	"""
+
+	data_list = [element.text for element in soup.find_all("a", "title")]
+
+
+	return data_list[0]
